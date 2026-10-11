@@ -1,9 +1,9 @@
 // 공통 재료: 테마 색, 등장 애니메이션, 효과음, 등장 시점 계산
 import React from 'react'
-import { Audio, Sequence, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from 'remotion'
+import { Audio, Img, Sequence, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from 'remotion'
 import type { Scene } from './types'
 
-export type Theme = { bg1: string; bg2: string; ink: string; sub: string; card: string; accent: string; accent2: string; good: string; blob: string }
+export type Theme = { bg1: string; bg2: string; ink: string; sub: string; card: string; accent: string; accent2: string; good: string; blob: string; imgBlend?: 'multiply' | 'normal' }
 
 export const THEMES: Record<string, Theme> = {
   sky: { bg1: '#eaf4ff', bg2: '#fdf6ec', ink: '#1d2a44', sub: '#55617a', card: '#ffffff', accent: '#3b7cf4', accent2: '#ff8a3d', good: '#22a06b', blob: '#b9d8ff' },
@@ -98,8 +98,16 @@ export const Heading: React.FC<{ text?: string; at?: number }> = ({ text, at = 0
   )
 }
 
-export const Emoji: React.FC<{ e?: string; size: number; style?: React.CSSProperties }> = ({ e, size, style }) =>
-  e ? <div style={{ fontSize: size, lineHeight: 1.1, fontFamily: '"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif', ...style }}>{e}</div> : null
+// 이모지 또는 직접 만든 그림(img 가 있으면 그림 우선). 흰 배경 그림은 밝은 테마에서 multiply 로 배경에 녹인다
+export const Emoji: React.FC<{ e?: string; img?: string; size: number; style?: React.CSSProperties }> = ({ e, img, size, style }) => {
+  const t = useTheme()
+  if (img) {
+    // 생성 그림은 가장자리 여백이 있어 이모지보다 조금 크게
+    const w = Math.round(size * 1.35)
+    return <Img src={staticFile(img)} style={{ width: w, height: w, objectFit: 'contain', mixBlendMode: t.imgBlend || 'normal', ...style }} />
+  }
+  return e ? <div style={{ fontSize: size, lineHeight: 1.1, fontFamily: '"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif', ...style }}>{e}</div> : null
+}
 
 // 숫자를 0 → 목표값으로 세는 보간(감속)
 export function countUp(frame: number, at: number, len: number, value: number): number {

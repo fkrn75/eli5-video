@@ -15,6 +15,7 @@ Claude Code, Codex, Antigravity에서 쓸 수 있습니다.
 - **문장 단위 싱크**: 대본의 문장 하나를 따로 합성하므로 각 문장이 시작하는 프레임을 정확히 압니다. 항목은 그 문장을 말하는 순간 효과음과 함께 나타납니다.
 - **마무리 처리**: 내레이션이 나오는 동안 배경음이 자동으로 작아지고(덕킹), 자막이 붙으며, 최종 음량을 -16 LUFS로 맞춥니다.
 - **빠른 수정**: 바뀐 문장만 다시 합성합니다(해시 캐시).
+- **직접 그린 그림 (Codex, Antigravity)**: 두 에이전트는 자체 이미지 생성 도구(Codex `image_gen`, Antigravity `generate_image`)로 일러스트를 만들어 넣습니다. 큰 16:9 삽화 장면(`picture`)을 쓸 수 있고, 이모지가 들어가는 자리 어디에나 `img`를 쓸 수 있습니다. 스타일 문구를 고정해 영상 전체의 그림 톤을 맞추고, 흰 배경 그림은 밝은 테마에 자동으로 녹아듭니다. Claude Code 버전은 이모지만 씁니다.
 
 ## 설치
 
@@ -48,7 +49,7 @@ node build.mjs projects/llm/script.json --no-render  # TTS와 타임라인만
 node build.mjs projects/llm/script.json --still 3    # 3번 장면 정지 화면 PNG
 ```
 
-대본 형식과 쓰는 규칙은 [skill/eli5-video/SKILL.md](skill/eli5-video/SKILL.md)에 있습니다. 완성된 예시는 [projects/llm/script.json](projects/llm/script.json)입니다.
+대본 형식과 쓰는 규칙은 [skill/eli5-video/SKILL.md](skill/eli5-video/SKILL.md)에 있습니다. 그림 생성 규칙은 [skill/eli5-video/imagegen.md](skill/eli5-video/imagegen.md)에 있고, 설치할 때 Codex와 Antigravity용 스킬에만 붙습니다. 완성된 예시는 [projects/llm/script.json](projects/llm/script.json)입니다.
 
 ## 구조
 
@@ -58,7 +59,7 @@ node build.mjs projects/llm/script.json --still 3    # 3번 장면 정지 화면
 | `tts.py` | Supertonic v3 합성, 앞뒤 무음 자르기, 해시 캐시 |
 | `sfx.mjs` | 효과음 11종과 배경음 합성 |
 | `spoken.mjs` + `speak/` | 숫자·영문 → 한국어 읽기([MarkdownRadio](https://github.com/fkrn75/MarkdownRadio)에서 가져옴) |
-| `src/scenes.tsx` | 장면 10종 |
+| `src/scenes.tsx` | 장면 11종(+picture 큰 삽화) |
 | `src/Video.tsx` | 배경, 장면 전환, 자막, 배경음 덕킹 |
 | `install-skill.mjs` | 에이전트별 스킬 폴더에 설치(`--agents claude,codex`, `--uninstall`) |
 

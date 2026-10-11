@@ -111,7 +111,9 @@ const Caption: React.FC<{ s: Scene }> = ({ s }) => {
 
 export const Eli5Video: React.FC<Props> = (p) => {
   useFonts()
-  const theme = THEMES[p.theme] || THEMES.sky
+  const base = THEMES[p.theme] || THEMES.sky
+  // 흰 배경 그림을 밝은 테마에 녹이는 합성 방식(어두운 테마는 그대로)
+  const theme = { ...base, imgBlend: p.imgBlend || (p.theme === 'night' ? 'normal' : 'multiply') } as const
   // 배경음 더킹: 내레이션 구간(절대 프레임) 동안 볼륨을 40%로
   const spans = p.scenes.flatMap((s) => s.beats.map((b) => [s.from + b.start, s.from + b.start + b.dur]))
   const bgmVol = (f: number) => {

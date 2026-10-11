@@ -1,6 +1,6 @@
 // 장면 종류별 화면. 모든 프레임은 장면 기준(0 = 장면 시작)
 import React from 'react'
-import { AbsoluteFill, interpolate, useCurrentFrame } from 'remotion'
+import { AbsoluteFill, Img, interpolate, staticFile, useCurrentFrame } from 'remotion'
 import type { Scene } from './types'
 import { BODY, Card, Emoji, HEAD, Heading, Pop, Sfx, beatIndex, countUp, revealAt, useBob, usePop, useTheme } from './ui'
 
@@ -18,7 +18,7 @@ const Title: React.FC<{ s: Scene }> = ({ s }) => {
   return (
     <AbsoluteFill style={{ ...center, flexDirection: 'column', paddingBottom: 120 }}>
       <Pop at={2}>
-        <Emoji e={s.emoji} size={230} style={{ transform: `translateY(${bob}px)` }} />
+        <Emoji e={s.emoji} img={s.img} size={230} style={{ transform: `translateY(${bob}px)` }} />
       </Pop>
       <Pop at={8} from="up">
         <div style={{ fontFamily: HEAD, fontSize: 150, color: t.ink, marginTop: 20, letterSpacing: -2, textAlign: 'center' }}>{s.title}</div>
@@ -43,7 +43,7 @@ const Analogy: React.FC<{ s: Scene }> = ({ s }) => {
   const side = (x: Scene['left'], at: number, bob: number, hl: boolean) => (
     <Pop at={at}>
       <Card active={hl} style={{ width: 600, height: 520, ...center, flexDirection: 'column', gap: 24 }}>
-        <Emoji e={x?.emoji} size={200} style={{ transform: `translateY(${bob}px)` }} />
+        <Emoji e={x?.emoji} img={x?.img} size={200} style={{ transform: `translateY(${bob}px)` }} />
         <div style={{ fontFamily: HEAD, fontSize: 64, color: t.ink, textAlign: 'center', padding: '0 30px', lineHeight: 1.2 }}>{x?.label}</div>
       </Card>
     </Pop>
@@ -96,7 +96,7 @@ const Steps: React.FC<{ s: Scene }> = ({ s }) => {
               <Pop at={at[k]} from="up">
                 <Card active={k === cur} style={{ width: w, height: 470, ...center, flexDirection: 'column', gap: 18, position: 'relative', opacity: cur > k ? 0.75 : 1 }}>
                   <div style={{ position: 'absolute', top: -34, left: '50%', transform: 'translateX(-50%)', width: 76, height: 76, borderRadius: 99, background: t.accent, color: '#fff', fontFamily: HEAD, fontSize: 46, ...center }}>{k + 1}</div>
-                  <Emoji e={it.emoji} size={n <= 3 ? 170 : 140} />
+                  <Emoji e={it.emoji} img={it.img} size={n <= 3 ? 170 : 140} />
                   <div style={{ fontFamily: HEAD, fontSize: n <= 3 ? 52 : 44, color: t.ink, textAlign: 'center', padding: '0 22px', lineHeight: 1.25 }}>{it.text || it.label}</div>
                 </Card>
               </Pop>
@@ -139,7 +139,7 @@ const Flow: React.FC<{ s: Scene }> = ({ s }) => {
                 )}
                 <Pop at={at[k]} style={{ position: 'absolute', left: x, top: 40, width: nodeW }}>
                   <Card style={{ height: 330, ...center, flexDirection: 'column', gap: 14 }}>
-                    <Emoji e={nd.emoji} size={130} />
+                    <Emoji e={nd.emoji} img={nd.img} size={130} />
                     <div style={{ fontFamily: HEAD, fontSize: 44, color: t.ink, textAlign: 'center', padding: '0 14px', lineHeight: 1.2 }}>{nd.label || nd.text}</div>
                   </Card>
                 </Pop>
@@ -163,7 +163,7 @@ const Compare: React.FC<{ s: Scene }> = ({ s }) => {
     <Pop at={at} from="up">
       <Card style={{ width: 700, minHeight: 540, padding: '40px 50px', boxSizing: 'border-box', borderTop: `14px solid ${color}` }}>
         <div style={{ ...center, gap: 20 }}>
-          <Emoji e={x?.emoji} size={110} />
+          <Emoji e={x?.emoji} img={x?.img} size={110} />
           <div style={{ fontFamily: HEAD, fontSize: 64, color: t.ink }}>{x?.title || x?.label}</div>
         </div>
         <div style={{ marginTop: 26 }}>
@@ -215,7 +215,7 @@ const NumberScene: React.FC<{ s: Scene }> = ({ s }) => {
       <Stage>
         <div style={{ ...center, flexDirection: 'column' }}>
           <Pop at={2}>
-            <Emoji e={s.emoji} size={170} style={{ marginBottom: 24 }} />
+            <Emoji e={s.emoji} img={s.img} size={170} style={{ marginBottom: 24 }} />
           </Pop>
           <div style={{ fontFamily: HEAD, fontSize: 210, color: t.accent, lineHeight: 1.05, transform: `scale(${1 + 0.08 * Math.sin(Math.PI * Math.min(1, done))})` }}>
             {shown}
@@ -256,7 +256,7 @@ const Bars: React.FC<{ s: Scene }> = ({ s }) => {
               <div key={k} style={{ ...center, flexDirection: 'column', justifyContent: 'flex-end', width: 220 }}>
                 <div style={{ fontFamily: HEAD, fontSize: 56, color: t.ink, opacity: p }}>{Math.round((b.value || 0) * p).toLocaleString('ko-KR')}</div>
                 <div style={{ width: 170, height: h, background: color, borderRadius: '24px 24px 8px 8px', marginTop: 8 }} />
-                <Emoji e={b.emoji} size={80} style={{ marginTop: 14, opacity: p }} />
+                <Emoji e={b.emoji} img={b.img} size={80} style={{ marginTop: 14, opacity: p }} />
                 <div style={{ fontFamily: HEAD, fontSize: 42, color: t.sub, marginTop: 4, textAlign: 'center' }}>{b.label}</div>
                 <Sfx at={at[k]} name="rise" volume={0.35} scene={s} />
               </div>
@@ -299,7 +299,7 @@ const EmojiItem: React.FC<{ it: NonNullable<Scene['items']>[number]; at: number;
   return (
     <Pop at={at} style={{ position: 'absolute', left: `${(it.x ?? 0.5) * 100}%`, top: `${(it.y ?? 0.5) * 100}%` }}>
       <div style={{ ...center, flexDirection: 'column', transform: `translate(-50%,-50%) translateY(${bob}px)` }}>
-        <Emoji e={it.emoji} size={it.size || 180} />
+        <Emoji e={it.emoji} img={it.img} size={it.size || 180} />
         {(it.label || it.text) && <div style={{ fontFamily: HEAD, fontSize: 44, color: t.ink, marginTop: 6, whiteSpace: 'nowrap' }}>{it.label || it.text}</div>}
       </div>
     </Pop>
@@ -321,7 +321,7 @@ const Recap: React.FC<{ s: Scene }> = ({ s }) => {
             <Pop key={k} at={at[k]} from="right">
               <div style={{ display: 'flex', alignItems: 'center', gap: 28, margin: '22px 0' }}>
                 <div style={{ width: 70, height: 70, borderRadius: 20, background: t.good, color: '#fff', fontSize: 50, fontFamily: HEAD, ...center, flex: 'none' }}>✓</div>
-                {it.emoji && <Emoji e={it.emoji} size={64} />}
+                {(it.emoji || it.img) && <Emoji e={it.emoji} img={it.img} size={64} />}
                 <div style={{ fontFamily: HEAD, fontSize: 58, color: t.ink }}>{it.text || it.label}</div>
               </div>
             </Pop>
@@ -343,7 +343,7 @@ const Quote: React.FC<{ s: Scene }> = ({ s }) => {
     <Stage top={120}>
       <div style={{ ...center, flexDirection: 'column', gap: 30 }}>
         <Pop at={2}>
-          <Emoji e={s.emoji} size={190} style={{ transform: `translateY(${bob}px)` }} />
+          <Emoji e={s.emoji} img={s.img} size={190} style={{ transform: `translateY(${bob}px)` }} />
         </Pop>
         <Pop at={8} from="up">
           <div style={{ fontFamily: HEAD, fontSize: 96, color: t.ink, textAlign: 'center', lineHeight: 1.3, maxWidth: 1500 }}>
@@ -361,7 +361,36 @@ const Quote: React.FC<{ s: Scene }> = ({ s }) => {
   )
 }
 
+// ── 큰 그림(직접 만든 16:9 삽화, 천천히 확대) ──
+const Picture: React.FC<{ s: Scene }> = ({ s }) => {
+  const t = useTheme()
+  const frame = useCurrentFrame()
+  const w = s.title ? 1120 : 1280
+  const zoom = s.zoom === false ? 1 : interpolate(frame, [0, s.dur], [1, 1.08])
+  const capAt = s.beats[Math.min(1, s.beats.length - 1)].start
+  return (
+    <>
+      <Heading text={s.title} />
+      <Stage top={s.title ? 200 : 70}>
+        <Pop at={2}>
+          <div style={{ position: 'relative', width: w, height: Math.round((w * 9) / 16), borderRadius: 40, overflow: 'hidden', background: t.card, boxShadow: '0 18px 50px rgba(20,30,60,0.18)', border: `8px solid ${t.card}` }}>
+            {s.img && <Img src={staticFile(s.img)} style={{ width: '100%', height: '100%', objectFit: 'cover', transform: `scale(${zoom})` }} />}
+            {s.caption && (
+              <Pop at={capAt} from="up" style={{ position: 'absolute', left: 0, right: 0, bottom: 26, textAlign: 'center' }}>
+                <span style={{ fontFamily: HEAD, fontSize: 54, color: t.ink, background: t.card, padding: '10px 36px', borderRadius: 999, boxShadow: '0 6px 18px rgba(0,0,0,.12)' }}>{s.caption}</span>
+              </Pop>
+            )}
+          </div>
+        </Pop>
+      </Stage>
+      <Sfx at={2} name="sparkle" volume={0.3} scene={s} />
+      {s.caption && <Sfx at={capAt} name="pop" scene={s} />}
+    </>
+  )
+}
+
 export const SCENES: Record<Scene['type'], React.FC<{ s: Scene }>> = {
+  picture: Picture,
   title: Title,
   analogy: Analogy,
   steps: Steps,

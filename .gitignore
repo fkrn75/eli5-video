@@ -3,6 +3,10 @@ tts_cache/
 public/*/
 
 !public/fonts/
-projects/*/*.mp4
-projects/*/still_*.png
+# 사용자 작업물은 올리지 않는다(샘플 llm 의 대본만 공개)
+projects/*
+!projects/llm/
+projects/llm/*
+!projects/llm/script.json
+*.log
 config.json

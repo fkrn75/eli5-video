@@ -26,12 +26,36 @@ const pubDir = path.join(HERE, 'public', slug)
 fs.mkdirSync(pubDir, { recursive: true })
 
 // ── 0. 대본 검증(흔한 실수를 렌더 전에 잡는다) ─────────────────
-const TYPES = ['title', 'analogy', 'steps', 'flow', 'compare', 'number', 'bars', 'emoji', 'recap', 'quote']
+const TYPES = ['title', 'analogy', 'steps', 'flow', 'compare', 'number', 'bars', 'emoji', 'recap', 'quote', 'picture']
 script.scenes.forEach((s, i) => {
   if (!TYPES.includes(s.type)) throw new Error(`장면 ${i + 1}: 알 수 없는 type "${s.type}" (가능: ${TYPES.join(', ')})`)
   if (typeof s.say === 'string') s.say = [s.say]
   if (!Array.isArray(s.say) || s.say.length === 0) throw new Error(`장면 ${i + 1}: say(내레이션 문장 배열)가 비었습니다`)
+  if (s.type === 'picture' && !s.img) throw new Error(`장면 ${i + 1}: picture 장면에는 img(그림 경로)가 필요합니다`)
 })
+
+// ── 0-1. 직접 만든 그림(img) → public/<slug>/img/ 로 복사하고 경로를 바꿔 쓴다 ──
+// img 는 대본 폴더 기준 상대경로(예: "images/robot.png") 또는 절대경로
+const imgDir = path.join(pubDir, 'img')
+let imgCount = 0
+function useImg(obj, where) {
+  if (!obj || typeof obj !== 'object' || !obj.img) return
+  const src = path.isAbsolute(obj.img) ? obj.img : path.join(projDir, obj.img)
+  if (!fs.existsSync(src)) throw new Error(`${where}: 그림 파일이 없습니다 → ${src}`)
+  const rel = (path.isAbsolute(obj.img) ? path.basename(obj.img) : path.relative(projDir, src)).replace(/[\\/]/g, '__')
+  fs.mkdirSync(imgDir, { recursive: true })
+  fs.copyFileSync(src, path.join(imgDir, rel))
+  obj.img = `${slug}/img/${rel}`
+  imgCount++
+}
+script.scenes.forEach((s, i) => {
+  const w = `장면 ${i + 1}`
+  useImg(s, w)
+  for (const k of ['items', 'nodes', 'bars']) (Array.isArray(s[k]) ? s[k] : []).forEach((it, j) => useImg(it, `${w} ${k}[${j}]`))
+  useImg(s.left, `${w} left`)
+  useImg(s.right, `${w} right`)
+})
+if (imgCount) console.log(`[그림] ${imgCount}개 사용`)
 
 // ── 1. 발음 변환(숫자·영문 약어 → 한국어 읽기) ─────────────────
 const beats = script.scenes.flatMap((s, i) => s.say.map((text, j) => ({ id: `s${String(i + 1).padStart(2, '0')}_b${j}`, text })))
@@ -83,7 +107,7 @@ if (!fs.existsSync(path.join(sfxDir, 'swipe.wav'))) writeAll(sfxDir)
 const useBgm = script.bgm !== false
 if (useBgm) writeWav(path.join(pubDir, 'bgm.wav'), bgm(total / FPS + 0.5))
 
-const props = { title: script.title || '', theme: script.theme || 'sky', fps: FPS, total, bgm: useBgm ? `${slug}/bgm.wav` : null, bgmVolume: script.bgmVolume ?? 0.07, captions: script.captions !== false, scenes }
+const props = { title: script.title || '', theme: script.theme || 'sky', fps: FPS, total, bgm: useBgm ? `${slug}/bgm.wav` : null, bgmVolume: script.bgmVolume ?? 0.07, captions: script.captions !== false, imgBlend: script.imgBlend, scenes }
 const propsPath = path.join(pubDir, 'props.json')
 fs.writeFileSync(propsPath, JSON.stringify(props, null, 1))
 console.log(`[타임라인] 장면 ${scenes.length}개 · 문장 ${beats.length}개 · 총 ${(total / FPS).toFixed(1)}초 → ${path.relative(HERE, propsPath)}`)
