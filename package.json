@@ -1,0 +1,21 @@
+{
+  "name": "eli5-video",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "어려운 내용을 효과음·한국어 내레이션이 들어간 쉬운 설명 영상으로 만드는 엔진 (Remotion + 코드 합성 효과음 + Supertonic v3)",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.534",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "remotion": "^4.0.534"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "typescript": "^7.0.2"
+  }
+}

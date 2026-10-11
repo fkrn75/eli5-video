@@ -1,0 +1,8 @@
+node_modules/
+tts_cache/
+public/*/
+
+!public/fonts/
+projects/*/*.mp4
+projects/*/still_*.png
+config.json
